@@ -1,0 +1,10 @@
+language: go
+go:
+  - 1.8
+addons:
+  apt:
+    packages:
+      - rsyslog
+      - xmlsec1
+script:
+  - ./run.sh

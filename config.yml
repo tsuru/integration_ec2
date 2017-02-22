@@ -1,0 +1,17 @@
+name: "int-test"
+driver:
+  name: amazonec2
+  options:
+    amazonec2-access-key: "$AWSKEY"
+    amazonec2-secret-key: "$AWSSECRET"
+    amazonec2-vpc-id: vpc-881598ed
+    amazonec2-subnet-id: subnet-6d907c46
+    amazonec2-instance-type: t2.medium
+hosts:
+  apps:
+    size: 0
+    dedicated: true
+components:
+  tsuru:
+    version: latest
+    install-dashboard: false
