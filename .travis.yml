@@ -8,4 +8,5 @@ addons:
       - rsyslog
       - xmlsec1
 script:
+  - while true; do echo .; sleep 30; done &
   - ./run.sh
