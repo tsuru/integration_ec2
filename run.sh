@@ -25,6 +25,6 @@ export TSURU_INTEGRATION_nodeopts="iaas=dockermachine"
 export TSURU_INTEGRATION_verbose=1
 export TSURU_INTEGRATION_enabled=1
 
-go test -v -timeout 60m github.com/tsuru/tsuru/integration
+go test -v -timeout 120m github.com/tsuru/tsuru/integration
 
 rm -f ${finalconfigpath}
