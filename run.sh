@@ -9,6 +9,14 @@ cp ${mypath}/config.yml ${finalconfigpath}
 sed -i.bak "s|\$AWSKEY|${AWSKEY}|g" ${finalconfigpath}
 sed -i.bak "s|\$AWSSECRET|${AWSSECRET}|g" ${finalconfigpath}
 
+echo "Installing go 1.8..."
+tmpdir=$(mktemp -d)
+curl -sL -o ${tmpdir}/bin/gimme --create-dirs https://raw.githubusercontent.com/travis-ci/gimme/master/gimme
+chmod +x ${tmpdir}/bin/gimme
+tmpdir=$(mktemp -d)
+export GIMME_TMP=${tmpdir}
+${tmpdir}/bin/gimme 1.8
+
 tmpdir=$(mktemp -d)
 export GOPATH=${tmpdir}
 export PATH=$GOPATH/bin:$PATH
