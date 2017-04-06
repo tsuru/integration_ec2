@@ -15,6 +15,7 @@ curl -sL -o ${tmpdir}/bin/gimme --create-dirs https://raw.githubusercontent.com/
 chmod +x ${tmpdir}/bin/gimme
 export GIMME_TMP=$(mktemp -d)
 ${tmpdir}/bin/gimme 1.8
+source "$HOME/.gimme/envs/go1.8.env"
 
 tmpdir=$(mktemp -d)
 export GOPATH=${tmpdir}
