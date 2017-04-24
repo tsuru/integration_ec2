@@ -12,6 +12,4 @@ hosts:
     size: 0
     dedicated: true
 components:
-  tsuru:
-    version: latest
-    install-dashboard: false
+  install-dashboard: false
