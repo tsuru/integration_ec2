@@ -2,7 +2,7 @@ name: "int-test"
 docker-flags:
   - log-driver awslogs
   - log-opt awslogs-group=tsuru-integration
-  - log-opt tag={{.ImageName}}
+  - log-opt tag={{.Name}}
   - experimental
 driver:
   name: amazonec2
