@@ -13,6 +13,7 @@ driver:
     amazonec2-subnet-id: subnet-6d907c46
     amazonec2-instance-type: t2.xlarge
     amazonec2-iam-instance-profile: tsuru-integration-logs
+    amazonec2-keypair-name: integration-tests
 hosts:
   apps:
     size: 0
