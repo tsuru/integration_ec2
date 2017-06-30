@@ -6,8 +6,10 @@ function abspath() { echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
 mypath=$(abspath $(dirname ${BASH_SOURCE[0]}))
 finalconfigpath=$(mktemp)
 cp ${mypath}/config.yml ${finalconfigpath}
+cp ${mypath}/userdata.sh ${finalconfigpath}
 sed -i.bak "s|\$AWSKEY|${AWSKEY}|g" ${finalconfigpath}
 sed -i.bak "s|\$AWSSECRET|${AWSSECRET}|g" ${finalconfigpath}
+sed -i.bak "s|\$USERDATAPATH|${finalconfigpath}/userdata.sh|g" ${finalconfigpath}
 
 tmpdir=$(mktemp -d)
 export GOPATH=${tmpdir}
