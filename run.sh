@@ -10,7 +10,7 @@ cp ${mypath}/config.yml ${finalconfigpath}
 cp ${mypath}/userdata.sh ${userdatapath}
 sed -i.bak "s|\$AWSKEY|${AWSKEY}|g" ${finalconfigpath}
 sed -i.bak "s|\$AWSSECRET|${AWSSECRET}|g" ${finalconfigpath}
-sed -i.bak "s|\$USERDATAPATH|${userdatapath}|g" ${userdatapath}
+sed -i.bak "s|\$USERDATAPATH|${userdatapath}|g" ${finalconfigpath}
 
 tmpdir=$(mktemp -d)
 export GOPATH=${tmpdir}
