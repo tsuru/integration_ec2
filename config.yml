@@ -4,6 +4,7 @@ docker-flags:
   - log-opt awslogs-group=tsuru-integration
   - log-opt tag={{.Name}}
   - experimental
+docker-storage-driver: overlay
 driver:
   name: amazonec2
   options:
