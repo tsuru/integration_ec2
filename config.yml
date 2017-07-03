@@ -27,5 +27,4 @@ components:
       iaas:
         dockermachine:
           user-data-url: https://raw.githubusercontent.com/tsuru/integration_ec2/master/userdata.sh
-          driver:
-            user-data-file-param: amazonec2-userdata
+          user-data-file-param: amazonec2-userdata
