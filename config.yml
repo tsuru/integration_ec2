@@ -14,7 +14,6 @@ driver:
     amazonec2-subnet-id: subnet-6d907c46
     amazonec2-instance-type: t2.xlarge
     amazonec2-iam-instance-profile: tsuru-integration-logs
-    amazonec2-userdata: "$USERDATAPATH"
 hosts:
   apps:
     size: 0
@@ -24,7 +23,3 @@ components:
   tsuru:
     config:
       debug: true
-      iaas:
-        dockermachine:
-          user-data-url: https://raw.githubusercontent.com/tsuru/integration_ec2/master/userdata.sh
-          user-data-file-param: amazonec2-userdata
