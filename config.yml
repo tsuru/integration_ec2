@@ -23,3 +23,6 @@ components:
   tsuru:
     config:
       debug: true
+      iaas:
+        dockermachine:
+          debug: true
