@@ -1,4 +1,4 @@
-name: "int-test"
+name: "$INSTALLNAME"
 docker-flags:
   - log-driver awslogs
   - log-opt awslogs-group=tsuru-integration
