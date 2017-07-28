@@ -20,6 +20,7 @@ hosts:
     dedicated: true
 components:
   install-dashboard: false
+  tsuru-image: tsuru/api:$TSURUVERSION
   tsuru:
     config:
       debug: true

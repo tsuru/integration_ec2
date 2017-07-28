@@ -2,6 +2,10 @@
 
 set -e
 
+TSURUVERSION=${TSURUVERSION:-latest}
+
+echo "Going to test tsuru image version: $TSURUVERSION"
+
 function abspath() { echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
 mypath=$(abspath $(dirname ${BASH_SOURCE[0]}))
 finalconfigpath=$(mktemp)
@@ -10,6 +14,7 @@ cp ${mypath}/config.yml ${finalconfigpath}
 sed -i.bak "s|\$AWSKEY|${AWSKEY}|g" ${finalconfigpath}
 sed -i.bak "s|\$AWSSECRET|${AWSSECRET}|g" ${finalconfigpath}
 sed -i.bak "s|\$INSTALLNAME|int-${installname}|g" ${finalconfigpath}
+sed -i.bak "s|\$TSURUVERSION|${TSURUVERSION}|g" ${finalconfigpath}
 
 tmpdir=$(mktemp -d)
 export GOPATH=${tmpdir}
