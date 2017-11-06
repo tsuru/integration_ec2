@@ -5,6 +5,7 @@ docker-flags:
   - log-opt tag={{.Name}}
   - experimental
 docker-storage-driver: overlay
+docker-install-url: https://raw.githubusercontent.com/rancher/install-docker/master/17.09.0.sh
 driver:
   name: amazonec2
   options:
