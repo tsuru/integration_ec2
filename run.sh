@@ -24,7 +24,7 @@ go get github.com/tsuru/platforms/...
 echo "Go get tsuru..."
 go get github.com/tsuru/tsuru/integration
 echo "Go get tsuru client..."
-go get github.com/tsuru/tsuru-client/...
+go get github.com/tsuru/tsuru-client/tsuru
 
 export TSURU_INTEGRATION_examplesdir="${GOPATH}/src/github.com/tsuru/platforms/examples"
 export TSURU_INTEGRATION_installerconfig=${finalconfigpath}
