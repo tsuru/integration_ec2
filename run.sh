@@ -23,8 +23,20 @@ echo "Go get platforms..."
 go get github.com/tsuru/platforms/...
 echo "Go get tsuru..."
 go get github.com/tsuru/tsuru/integration
+
 echo "Go get tsuru client..."
-go get github.com/tsuru/tsuru-client/tsuru
+go get -d github.com/tsuru/tsuru-client/tsuru
+pushd $GOPATH/src/github.com/tsuru/tsuru-client
+if [ "$TSURUVERSION" != "latest" ]; then
+  MINOR=$(echo "$TSURUVERSION" | sed -E 's/^[^0-9]*([0-9]+\.[0-9]+).*$/\1/g')
+  CLIENT_TAG=$(git tag --list "$MINOR.*" --sort=-taggerdate | head -1)
+  if [ "$CLIENT_TAG" != "" ]; then
+    echo "Checking out tsuru-client $CLIENT_TAG"
+    git checkout $CLIENT_TAG
+  fi
+fi
+go install ./...
+popd
 
 export TSURU_INTEGRATION_examplesdir="${GOPATH}/src/github.com/tsuru/platforms/examples"
 export TSURU_INTEGRATION_installerconfig=${finalconfigpath}
