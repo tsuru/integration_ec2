@@ -11,10 +11,12 @@ driver:
   options:
     amazonec2-access-key: "$AWSKEY"
     amazonec2-secret-key: "$AWSSECRET"
-    amazonec2-vpc-id: vpc-881598ed
-    amazonec2-subnet-id: subnet-6d907c46
-    amazonec2-instance-type: t2.2xlarge
+    amazonec2-vpc-id: "$AWS_VPC_ID"
+    amazonec2-subnet-id: "$AWS_SUBNET_ID"
+    amazonec2-instance-type: "$AWS_INSTANCE_TYPE"
+    amazonec2-region: "$AWS_REGION"
     amazonec2-iam-instance-profile: tsuru-integration-logs
+    amazonec2-security-group: docker-machine
 hosts:
   apps:
     size: 0

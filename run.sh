@@ -2,6 +2,24 @@
 
 set -e
 
+export AWS_VPC_ID="vpc-881598ed"
+export AWS_SUBNET_ID="subnet-6d907c46"
+export AWS_SUBNET_IDS="subnet-6d907c46,subnet-a363c1d4"
+export AWS_SECURITY_GROUP_ID="sg-46a6e73d"
+export AWS_REGION="us-east-1"
+export AWS_INSTANCE_TYPE="t2.2xlarge"
+export AWS_USERDATA=$(cat <<'EOF'
+#!/bin/bash
+set -o xtrace
+cat /etc/docker/daemon.json | jq '. + {"insecure-registries": ["172.30.0.0/16"]}' > /etc/docker/daemon.json.new
+mv /etc/docker/daemon.json /etc/docker/daemon.json.old
+mv /etc/docker/daemon.json.new /etc/docker/daemon.json
+systemctl restart docker
+/etc/eks/bootstrap.sh ${ClusterName} ${BootstrapArguments}
+/opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource NodeGroup --region ${AWS::Region}
+EOF
+)
+
 TSURUVERSION=${TSURUVERSION:-latest}
 
 echo "Going to test tsuru image version: $TSURUVERSION"
@@ -15,6 +33,10 @@ sed -i.bak "s|\$AWSKEY|${AWSKEY}|g" ${finalconfigpath}
 sed -i.bak "s|\$AWSSECRET|${AWSSECRET}|g" ${finalconfigpath}
 sed -i.bak "s|\$INSTALLNAME|int-${installname}|g" ${finalconfigpath}
 sed -i.bak "s|\$TSURUVERSION|${TSURUVERSION}|g" ${finalconfigpath}
+sed -i.bak "s|\$AWS_VPC_ID|${AWS_VPC_ID}|g" ${finalconfigpath}
+sed -i.bak "s|\$AWS_SUBNET_ID|${AWS_SUBNET_ID}|g" ${finalconfigpath}
+sed -i.bak "s|\$AWS_INSTANCE_TYPE|${AWS_INSTANCE_TYPE}|g" ${finalconfigpath}
+sed -i.bak "s|\$AWS_REGION|${AWS_REGION}|g" ${finalconfigpath}
 
 tmpdir=$(mktemp -d)
 export GOPATH=${tmpdir}
@@ -44,9 +66,8 @@ export TSURU_INTEGRATION_nodeopts="iaas=dockermachine"
 export TSURU_INTEGRATION_maxconcurrency=4
 export TSURU_INTEGRATION_verbose=1
 export TSURU_INTEGRATION_enabled=1
-export TSURU_INTEGRATION_clusters=""
+export TSURU_INTEGRATION_clusters="eks"
 
 go test -v -timeout 120m github.com/tsuru/tsuru/integration
 
 rm -f ${finalconfigpath}
-rm -f ${userdatapath}
