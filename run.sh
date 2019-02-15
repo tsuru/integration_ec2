@@ -27,11 +27,11 @@ echo "Going to test tsuru image version: $TSURUVERSION"
 function abspath() { echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
 mypath=$(abspath $(dirname ${BASH_SOURCE[0]}))
 finalconfigpath=$(mktemp)
-installname=$(uuidgen | head -c 18)
+installname="int-$(uuidgen | head -c 18)"
 cp ${mypath}/config.yml ${finalconfigpath}
 sed -i.bak "s|\$AWSKEY|${AWSKEY}|g" ${finalconfigpath}
 sed -i.bak "s|\$AWSSECRET|${AWSSECRET}|g" ${finalconfigpath}
-sed -i.bak "s|\$INSTALLNAME|int-${installname}|g" ${finalconfigpath}
+sed -i.bak "s|\$INSTALLNAME|${installname}|g" ${finalconfigpath}
 sed -i.bak "s|\$TSURUVERSION|${TSURUVERSION}|g" ${finalconfigpath}
 sed -i.bak "s|\$AWS_VPC_ID|${AWS_VPC_ID}|g" ${finalconfigpath}
 sed -i.bak "s|\$AWS_SUBNET_ID|${AWS_SUBNET_ID}|g" ${finalconfigpath}
@@ -60,6 +60,7 @@ fi
 go install ./...
 popd
 
+export TSURU_INTEGRATION_installername="${installname}"
 export TSURU_INTEGRATION_examplesdir="${GOPATH}/src/github.com/tsuru/platforms/examples"
 export TSURU_INTEGRATION_installerconfig=${finalconfigpath}
 export TSURU_INTEGRATION_nodeopts="iaas=dockermachine"
