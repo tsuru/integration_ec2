@@ -45,7 +45,9 @@ function cleanup() {
 
   instanceids=$(aws ec2 describe-instances --filter Name=instance.group-name,Values=docker-machine | \
     jq -r '.Reservations[].Instances[].InstanceId')
-  aws ec2 terminate-instances --instance-ids $instanceids
+  if [ ! -z "$instanceids" ]; then
+    aws ec2 terminate-instances --instance-ids $instanceids
+  fi
 }
 
 if which apt-get; then
