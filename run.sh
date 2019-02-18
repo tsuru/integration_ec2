@@ -2,6 +2,12 @@
 
 set -e
 
+if [[ "$AWSKEY" == "" ]] ||
+    [[ "$AWSSECRET" == "" ]]; then
+    echo "Missing required envs"
+    exit 1
+fi
+
 export AWS_VPC_ID="vpc-881598ed"
 export AWS_SUBNET_ID="subnet-6d907c46"
 export AWS_SUBNET_IDS="subnet-6d907c46,subnet-a363c1d4"
@@ -19,6 +25,29 @@ systemctl restart docker
 /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource NodeGroup --region ${AWS::Region}
 EOF
 )
+
+function cleanup() {
+    aws configure set aws_access_key_id $AWSKEY
+    aws configure set aws_secret_access_key $AWSSECRET
+    aws configure set default.region $AWS_REGION
+
+    clusters=$(aws eks list-clusters | jq -r '.clusters[] | select(. | contains("icluster-kube-"))')
+    stacks=$(aws cloudformation list-stacks --stack-status-filter CREATE_FAILED CREATE_IN_PROGRESS CREATE_COMPLETE | \
+        jq -r '.StackSummaries[].StackName | select(. | contains("icluster-kube-"))')
+    for cluster in $clusters; do
+        aws eks delete-cluster --name $cluster
+    done
+    for stack in $stacks; do
+        aws cloudformation delete-stack --stack-name $stack
+    done
+
+    instanceids=$(aws ec2 describe-instances --filter Name=instance.group-name,Values=docker-machine | \
+        jq -r '.Reservations[].Instances[].InstanceId')
+    aws ec2 terminate-instances --instance-ids $instanceids
+}
+
+cleanup
+trap cleanup EXIT
 
 TSURUVERSION=${TSURUVERSION:-latest}
 
