@@ -27,27 +27,31 @@ EOF
 )
 
 function cleanup() {
-    aws configure set aws_access_key_id $AWSKEY
-    aws configure set aws_secret_access_key $AWSSECRET
-    aws configure set default.region $AWS_REGION
+  sudo apt-get install -y python3-pip
+  sudo pip3 install awscli --upgrade
+  aws configure set aws_access_key_id $AWSKEY
+  aws configure set aws_secret_access_key $AWSSECRET
+  aws configure set default.region $AWS_REGION
 
-    clusters=$(aws eks list-clusters | jq -r '.clusters[] | select(. | contains("icluster-kube-"))')
-    stacks=$(aws cloudformation list-stacks --stack-status-filter CREATE_FAILED CREATE_IN_PROGRESS CREATE_COMPLETE | \
-        jq -r '.StackSummaries[].StackName | select(. | contains("icluster-kube-"))')
-    for cluster in $clusters; do
-        aws eks delete-cluster --name $cluster
-    done
-    for stack in $stacks; do
-        aws cloudformation delete-stack --stack-name $stack
-    done
+  clusters=$(aws eks list-clusters | jq -r '.clusters[] | select(. | contains("icluster-kube-"))')
+  stacks=$(aws cloudformation list-stacks --stack-status-filter CREATE_FAILED CREATE_IN_PROGRESS CREATE_COMPLETE | \
+    jq -r '.StackSummaries[].StackName | select(. | contains("icluster-kube-"))')
+  for cluster in $clusters; do
+    aws eks delete-cluster --name $cluster
+  done
+  for stack in $stacks; do
+    aws cloudformation delete-stack --stack-name $stack
+  done
 
-    instanceids=$(aws ec2 describe-instances --filter Name=instance.group-name,Values=docker-machine | \
-        jq -r '.Reservations[].Instances[].InstanceId')
-    aws ec2 terminate-instances --instance-ids $instanceids
+  instanceids=$(aws ec2 describe-instances --filter Name=instance.group-name,Values=docker-machine | \
+    jq -r '.Reservations[].Instances[].InstanceId')
+  aws ec2 terminate-instances --instance-ids $instanceids
 }
 
-cleanup
-trap cleanup EXIT
+if which apt-get; then
+  cleanup
+  trap cleanup EXIT
+fi
 
 TSURUVERSION=${TSURUVERSION:-latest}
 
