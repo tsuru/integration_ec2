@@ -27,6 +27,7 @@ EOF
 )
 
 function cleanup() {
+  sudo apt-get update
   sudo apt-get install -y python3-pip
   sudo pip3 install awscli --upgrade
   aws configure set aws_access_key_id $AWSKEY
