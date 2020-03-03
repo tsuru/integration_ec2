@@ -8,16 +8,17 @@ if [[ "$AWSKEY" == "" ]] ||
     exit 1
 fi
 
-export AWS_VPC_ID="vpc-881598ed"
-export AWS_SUBNET_ID="subnet-6d907c46"
-export AWS_SUBNET_IDS="subnet-6d907c46,subnet-a363c1d4"
-export AWS_SECURITY_GROUP_ID="sg-46a6e73d"
-export AWS_REGION="us-east-1"
+export AWS_KUBERNETES_VERSION="1.14"
+export AWS_VPC_ID="vpc-5643bf3f"
+export AWS_SUBNET_ID="subnet-3ef93457"
+export AWS_SUBNET_IDS="subnet-3ef93457,subnet-bf0f30f5"
+export AWS_SECURITY_GROUP_ID="sg-09b1cee691716782e"
+export AWS_REGION="us-east-2"
 export AWS_INSTANCE_TYPE="t2.2xlarge"
 export AWS_USERDATA=$(cat <<'EOF'
 #!/bin/bash
 set -o xtrace
-cat /etc/docker/daemon.json | jq '. + {"insecure-registries": ["172.30.0.0/16"]}' > /etc/docker/daemon.json.new
+cat /etc/docker/daemon.json | jq '. + {"insecure-registries": ["172.31.0.0/16"]}' > /etc/docker/daemon.json.new
 mv /etc/docker/daemon.json /etc/docker/daemon.json.old
 mv /etc/docker/daemon.json.new /etc/docker/daemon.json
 systemctl restart docker
@@ -27,9 +28,11 @@ EOF
 )
 
 function cleanup() {
-  sudo apt-get update
-  sudo apt-get install -y python3-pip
-  sudo pip3 install awscli --upgrade
+  if which apt-get; then
+    sudo apt-get update
+    sudo apt-get install -y python3-pip python3-setuptools
+    sudo pip3 install awscli --upgrade
+  fi
   aws configure set aws_access_key_id $AWSKEY
   aws configure set aws_secret_access_key $AWSSECRET
   aws configure set default.region $AWS_REGION
@@ -57,6 +60,7 @@ if which apt-get; then
 fi
 
 TSURUVERSION=${TSURUVERSION:-latest}
+INTEGRATION_VERSION=${INTEGRATION_VERSION:-${TSURUVERSION}}
 
 echo "Going to test tsuru image version: $TSURUVERSION"
 
@@ -80,8 +84,7 @@ export PATH=$GOPATH/bin:$PATH
 echo "Go get platforms..."
 go get -d github.com/tsuru/platforms/examples/go
 echo "Go get tsuru..."
-go get github.com/tsuru/tsuru/integration
-
+go get -d github.com/tsuru/tsuru/integration
 echo "Go get tsuru client..."
 go get -d github.com/tsuru/tsuru-client/tsuru
 pushd $GOPATH/src/github.com/tsuru/tsuru-client
@@ -105,6 +108,11 @@ export TSURU_INTEGRATION_verbose=1
 export TSURU_INTEGRATION_enabled=1
 export TSURU_INTEGRATION_clusters="eks"
 
-go test -v -timeout 120m github.com/tsuru/tsuru/integration
+pushd $GOPATH/src/github.com/tsuru/tsuru
+if [ "$INTEGRATION_VERSION" != "latest" ]; then
+  git checkout $INTEGRATION_VERSION
+fi
+go test -v -timeout 120m ./integration
+popd
 
 rm -f ${finalconfigpath}

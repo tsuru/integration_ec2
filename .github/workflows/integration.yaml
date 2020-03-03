@@ -1,0 +1,22 @@
+name: Go
+on: [push, pull_request]
+jobs:
+  test:
+    strategy:
+      max-parallel: 1
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+
+    - uses: actions/checkout@v1
+
+    - run: sudo apt-get update && sudo apt-get install -y rsyslog xmlsec1 libsasl2-dev uuid-runtime
+    
+    - name: Run integration
+      env:
+        AWSKEY: ${{ secrets.AWSKEY }}
+        AWSSECRET: ${{ secrets.AWSSECRET }}
+      run: |
+        while true; do echo .; sleep 30; done & ./run.sh
