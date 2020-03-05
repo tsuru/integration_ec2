@@ -2,7 +2,8 @@ name: Go
 on:
   push:
   pull_request:
-  schedule: '* 9 * * *'
+  schedule:
+  - cron: '* 9 * * *'
 jobs:
   test:
     strategy:
