@@ -103,7 +103,7 @@ go install ./...
 popd
 
 
-aws eks create-cluster --name icluster-kube-integration --resources-vpc-config subnetIds=${AWS_SUBNET_IDS},securityGroupIds=${AWS_SECURITY_GROUP_ID} --role-arn $EKS_ROLE_ARN --region $AWS_REGION
+aws eks create-cluster --name icluster-kube-integration --resources-vpc-config subnetIds=${AWS_SUBNET_IDS},securityGroupIds=${AWS_SECURITY_GROUP_ID} --role-arn $EKS_ROLE_ARN --region $AWS_REGION --kubernetes-version $AWS_KUBERNETES_VERSION
 
 while [ ! "$(aws eks describe-cluster --name icluster-kube-integration --region $AWS_REGION --query 'cluster.status' --output text)" = "ACTIVE" ]
 do
