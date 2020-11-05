@@ -101,6 +101,20 @@ fi
 go install ./...
 popd
 
+
+aws eks create-cluster --name icluster-kube-integration --resources-vpc-config subnetIds=${AWS_SUBNET_IDS},securityGroupIds=${AWS_SECURITY_GROUP_ID} --region $AWS_REGION
+
+while [ ! "$(aws eks describe-cluster --name icluster-kube-integration --region $AWS_REGION --query 'cluster.status' --output text)" = "ACTIVE" ]
+do
+  echo "Waiting cluster to be active"
+  sleep 1
+done
+
+export TSURU_INTEGRATION_cluster_addr=$(aws eks describe-cluster --name icluster-kube-integration --region $AWS_REGION --query 'cluster.endpoint' --output text)
+
+echo "Cluster addr is: $TSURU_INTEGRATION_cluster_addr"
+
+
 export TSURU_INTEGRATION_installername="${installname}"
 export TSURU_INTEGRATION_examplesdir="${GOPATH}/src/github.com/tsuru/platforms/examples"
 export TSURU_INTEGRATION_installerconfig=${finalconfigpath}
