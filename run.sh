@@ -79,14 +79,16 @@ sed -i.bak "s|\$AWS_INSTANCE_TYPE|${AWS_INSTANCE_TYPE}|g" ${finalconfigpath}
 sed -i.bak "s|\$AWS_REGION|${AWS_REGION}|g" ${finalconfigpath}
 
 tmpdir=$(mktemp -d)
+export GO111MODULE=on
 export GOPATH=${tmpdir}
 export PATH=$GOPATH/bin:$PATH
-echo "Go get platforms..."
-go get -d github.com/tsuru/platforms/examples/go
+mkdir -p $GOPATH/src/github.com/tsuru
 echo "Go get tsuru..."
-go get -d github.com/tsuru/tsuru/integration
-echo "Go get tsuru client..."
-go get -d github.com/tsuru/tsuru-client/tsuru
+pushd $GOPATH/src/github.com/tsuru
+git clone https://github.com/tsuru/tsuru
+git clone https://github.com/tsuru/tsuru-client
+git clone https://github.com/tsuru/platforms
+popd
 pushd $GOPATH/src/github.com/tsuru/tsuru-client
 if [ "$TSURUVERSION" != "latest" ]; then
   MINOR=$(echo "$TSURUVERSION" | sed -E 's/^[^0-9]*([0-9]+\.[0-9]+).*$/\1/g')
