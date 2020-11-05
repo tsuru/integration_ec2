@@ -15,7 +15,7 @@ export AWS_SUBNET_IDS="subnet-3ef93457,subnet-bf0f30f5"
 export AWS_SECURITY_GROUP_ID="sg-09b1cee691716782e"
 export AWS_REGION="us-east-2"
 export AWS_INSTANCE_TYPE="t2.2xlarge"
-export EKS_ROLE_ARN="arn:aws:iam::161634971543:role/aws-service-role/eks.amazonaws.com/AWSServiceRoleForAmazonEKS"
+export EKS_ROLE_ARN="arn:aws:iam::161634971543:role/TsuruEKSIntegrationTest"
 export AWS_USERDATA=$(cat <<'EOF'
 #!/bin/bash
 set -o xtrace
