@@ -9,10 +9,10 @@ if [[ "$AWSKEY" == "" ]] ||
 fi
 
 export AWS_KUBERNETES_VERSION="1.14"
-export AWS_VPC_ID="vpc-5643bf3f"
-export AWS_SUBNET_ID="subnet-3ef93457"
-export AWS_SUBNET_IDS="subnet-3ef93457,subnet-bf0f30f5"
-export AWS_SECURITY_GROUP_ID="sg-09b1cee691716782e"
+export AWS_VPC_ID="vpc-01454010307f8e87d"
+export AWS_SUBNET_ID="subnet-0018fb7c290dc22ec"
+export AWS_SUBNET_IDS="subnet-0018fb7c290dc22ec,subnet-04b0a2fee44861ba6,subnet-03267ff0ea37a7fc9"
+export AWS_SECURITY_GROUP_ID="sg-03965b311758f0d0f"
 export AWS_REGION="us-east-2"
 export AWS_INSTANCE_TYPE="t2.2xlarge"
 export EKS_ROLE_ARN="arn:aws:iam::161634971543:role/TsuruEKSIntegrationTest"
@@ -27,6 +27,9 @@ systemctl restart docker
 /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource NodeGroup --region ${AWS::Region}
 EOF
 )
+
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/0.30.0/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
 
 function cleanup() {
   if which apt-get; then
@@ -53,6 +56,8 @@ function cleanup() {
   if [ ! -z "$instanceids" ]; then
     aws ec2 terminate-instances --instance-ids $instanceids
   fi
+
+  eksctl delete cluster --region=$AWS_REGION --name=icluster-kube-integration || true
 }
 
 if which apt-get; then
@@ -102,19 +107,7 @@ fi
 go install ./...
 popd
 
-
-aws eks create-cluster --name icluster-kube-integration --resources-vpc-config subnetIds=${AWS_SUBNET_IDS},securityGroupIds=${AWS_SECURITY_GROUP_ID} --role-arn $EKS_ROLE_ARN --region $AWS_REGION --kubernetes-version $AWS_KUBERNETES_VERSION
-
-while [ ! "$(aws eks describe-cluster --name icluster-kube-integration --region $AWS_REGION --query 'cluster.status' --output text)" = "ACTIVE" ]
-do
-  echo "Waiting cluster to be active"
-  sleep 1
-done
-
-export TSURU_INTEGRATION_cluster_addr=$(aws eks describe-cluster --name icluster-kube-integration --region $AWS_REGION --query 'cluster.endpoint' --output text)
-
-echo "Cluster addr is: $TSURU_INTEGRATION_cluster_addr"
-
+eksctl create cluster -f cluster.yaml
 
 export TSURU_INTEGRATION_installername="${installname}"
 export TSURU_INTEGRATION_examplesdir="${GOPATH}/src/github.com/tsuru/platforms/examples"
@@ -123,7 +116,7 @@ export TSURU_INTEGRATION_nodeopts="iaas=dockermachine"
 export TSURU_INTEGRATION_maxconcurrency=4
 export TSURU_INTEGRATION_verbose=1
 export TSURU_INTEGRATION_enabled=1
-export TSURU_INTEGRATION_clusters="eks"
+export TSURU_INTEGRATION_clusters="kubectl"
 
 pushd $GOPATH/src/github.com/tsuru/tsuru
 if [ "$INTEGRATION_VERSION" != "latest" ]; then

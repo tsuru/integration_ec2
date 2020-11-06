@@ -1,0 +1,29 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: icluster-kube-integration
+  region: us-east-2
+
+vpc:
+  id: "vpc-01454010307f8e87d"  # (optional, must match VPC ID used for each subnet below)
+  cidr: "192.168.0.0/16"       # (optional, must match CIDR used by the given VPC)
+  subnets:
+    # must provide 'private' and/or 'public' subnets by availibility zone as shown
+    private:
+      us-east-2a:
+        id: "subnet-0018fb7c290dc22ec"
+        cidr: "192.168.64.0/18" # (optional, must match CIDR used by the given subnet)
+
+      us-east-2b:
+        id: "subnet-04b0a2fee44861ba6"
+        cidr: "192.168.128.0/18"  # (optional, must match CIDR used by the given subnet)
+
+      us-east-2c:
+        id: "subnet-03267ff0ea37a7fc9"
+        cidr: "192.168.192.0/18"   # (optional, must match CIDR used by the given subnet)
+
+nodeGroups:
+  - name: ng-1
+    instanceType: t2.2xlarge
+    desiredCapacity: 2
