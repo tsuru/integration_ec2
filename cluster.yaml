@@ -27,3 +27,4 @@ nodeGroups:
   - name: ng-1
     instanceType: t2.2xlarge
     desiredCapacity: 2
+    privateNetworking: true
