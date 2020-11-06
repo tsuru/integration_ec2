@@ -57,7 +57,7 @@ function cleanup() {
     aws ec2 terminate-instances --instance-ids $instanceids
   fi
 
-  eksctl delete cluster --region=$AWS_REGION --name=icluster-kube-integration || true
+  eksctl delete cluster --region=$AWS_REGION --name=icluster-kube-integration --wait || true
 }
 
 if which apt-get; then
