@@ -96,6 +96,9 @@ eksctl create cluster -f cluster.yaml
 export AWS_VPC_ID=$(aws eks describe-cluster --name  icluster-kube-integration --region us-east-2 | jq -r ".cluster.resourcesVpcConfig.vpcId")
 export AWS_SUBNET_ID=$(aws ec2 describe-subnets --region us-east-2 | jq ".Subnets[] | select(. | contains({\"AvailabilityZone\": \"us-east-2a\", \"MapPublicIpOnLaunch\": true, \"VpcId\": \"$AWS_VPC_ID\"})).SubnetId")
 
+echo "AWS VPC is $AWS_VPC_ID"
+echo "AWS SUBNET ID is $AWS_SUBNET_ID"
+
 mypath=$(abspath $(dirname ${BASH_SOURCE[0]}))
 finalconfigpath=$(mktemp)
 installname="int-$(uuidgen | head -c 18)"
