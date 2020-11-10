@@ -9,13 +9,9 @@ if [[ "$AWSKEY" == "" ]] ||
 fi
 
 export AWS_KUBERNETES_VERSION="1.14"
-export AWS_VPC_ID="vpc-01454010307f8e87d"
-export AWS_SUBNET_ID="subnet-0018fb7c290dc22ec"
-export AWS_SUBNET_IDS="subnet-0018fb7c290dc22ec,subnet-04b0a2fee44861ba6,subnet-03267ff0ea37a7fc9"
-export AWS_SECURITY_GROUP_ID="sg-03965b311758f0d0f"
 export AWS_REGION="us-east-2"
 export AWS_INSTANCE_TYPE="t2.2xlarge"
-export EKS_ROLE_ARN="arn:aws:iam::161634971543:role/TsuruEKSIntegrationTest"
+
 export AWS_USERDATA=$(cat <<'EOF'
 #!/bin/bash
 set -o xtrace
@@ -71,18 +67,6 @@ INTEGRATION_VERSION=${INTEGRATION_VERSION:-${TSURUVERSION}}
 echo "Going to test tsuru image version: $TSURUVERSION"
 
 function abspath() { echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
-mypath=$(abspath $(dirname ${BASH_SOURCE[0]}))
-finalconfigpath=$(mktemp)
-installname="int-$(uuidgen | head -c 18)"
-cp ${mypath}/config.yml ${finalconfigpath}
-sed -i.bak "s|\$AWSKEY|${AWSKEY}|g" ${finalconfigpath}
-sed -i.bak "s|\$AWSSECRET|${AWSSECRET}|g" ${finalconfigpath}
-sed -i.bak "s|\$INSTALLNAME|${installname}|g" ${finalconfigpath}
-sed -i.bak "s|\$TSURUVERSION|${TSURUVERSION}|g" ${finalconfigpath}
-sed -i.bak "s|\$AWS_VPC_ID|${AWS_VPC_ID}|g" ${finalconfigpath}
-sed -i.bak "s|\$AWS_SUBNET_ID|${AWS_SUBNET_ID}|g" ${finalconfigpath}
-sed -i.bak "s|\$AWS_INSTANCE_TYPE|${AWS_INSTANCE_TYPE}|g" ${finalconfigpath}
-sed -i.bak "s|\$AWS_REGION|${AWS_REGION}|g" ${finalconfigpath}
 
 tmpdir=$(mktemp -d)
 export GO111MODULE=on
@@ -108,6 +92,22 @@ go install ./...
 popd
 
 eksctl create cluster -f cluster.yaml
+
+export AWS_VPC_ID=$(aws eks describe-cluster --name  icluster-kube-integration --region us-east-2 | jq -r ".cluster.resourcesVpcConfig.vpcId")
+export AWS_SUBNET_ID=$(aws ec2 describe-subnets --region us-east-2 | jq ".Subnets[] | select(. | contains({\"AvailabilityZone\": \"us-east-2a\", \"MapPublicIpOnLaunch\": true, \"VpcId\": \"$AWS_VPC_ID\"})).SubnetId")
+
+mypath=$(abspath $(dirname ${BASH_SOURCE[0]}))
+finalconfigpath=$(mktemp)
+installname="int-$(uuidgen | head -c 18)"
+cp ${mypath}/config.yml ${finalconfigpath}
+sed -i.bak "s|\$AWSKEY|${AWSKEY}|g" ${finalconfigpath}
+sed -i.bak "s|\$AWSSECRET|${AWSSECRET}|g" ${finalconfigpath}
+sed -i.bak "s|\$INSTALLNAME|${installname}|g" ${finalconfigpath}
+sed -i.bak "s|\$TSURUVERSION|${TSURUVERSION}|g" ${finalconfigpath}
+sed -i.bak "s|\$AWS_VPC_ID|${AWS_VPC_ID}|g" ${finalconfigpath}
+sed -i.bak "s|\$AWS_SUBNET_ID|${AWS_SUBNET_ID}|g" ${finalconfigpath}
+sed -i.bak "s|\$AWS_INSTANCE_TYPE|${AWS_INSTANCE_TYPE}|g" ${finalconfigpath}
+sed -i.bak "s|\$AWS_REGION|${AWS_REGION}|g" ${finalconfigpath}
 
 export TSURU_INTEGRATION_installername="${installname}"
 export TSURU_INTEGRATION_examplesdir="${GOPATH}/src/github.com/tsuru/platforms/examples"
